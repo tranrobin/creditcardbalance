@@ -1,0 +1,370 @@
+---
+title: "Final Project"
+author: "Robin Tran"
+date: "12/2/2021"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE, 
+                      fig.height = 3.5)
+```
+
+This data analysis report provides information about a simulated dataset called "Credit Card Balance Data", containing information on 400 customers. The main aim of the dataset is to predict which customers will default on their credit card debt. However, this paper will focus on linear regression analysis of this dataset.
+
+The dataset contains 7 numerical variables: Income, Limit, Rating, Cards, Age, Education, and Balance. It contains 4 categorical variables: Gender, Student, Married, Ethnicity. A graph illustrating each variable will follow below, as well as summary and comments about the distribution of each variable. Also, I will focus on the relationship between age and income as well as income, age, and whether the individual was a student.
+
+```{r}
+creditbalance <- read.csv("https://vincentarelbundock.github.io/Rdatasets/csv/ISLR/Credit.csv")
+```
+
+```{r}
+tinytex::tlmgr_search("/multirow.sty")
+```
+
+# Explanatory Analysis and Data Summary
+
+# Graph for Income
+```{r}
+library(ggplot2)
+ggplot(creditbalance, aes(x = Income)) + 
+  geom_histogram(bins = 20, fill = "#EAB464") + 
+  ggtitle("Distribution of Income") +
+  labs(y= "People", x = "Income in $1000")
+```
+
+```{r}
+summary(creditbalance$Income)
+```
+
+The histogram above provides information about the distribution of income (in 1000 dollars) of 400 people in the dataset. The income (in 1000 dollars) ranges from 10.35 to 186.63, with a median of 33.12. Its mean is 45.22, and its IQR is 36.46. 
+
+This histogram is roughly unimodal and right-skewed. There does not appear to be any unusual values.
+
+# Graph for Limit
+
+```{r}
+ggplot(creditbalance, aes(x = Limit)) +
+  geom_histogram(bins = 20, fill = "#666A86") +
+  ggtitle("Distribution of Credit Limit") +
+  labs(y= "People", x = "Credit Limit")
+```
+
+```{r}
+summary(creditbalance$Limit)
+```
+
+The histogram above provides information about the distribution of credit limit of 400 people in the dataset. The credit limit ranges from 855 to 13913, with a median of 4622. Its mean is 4736, and its IQR is 2785. 
+
+This histogram might be unimodal and right-skewed. There appears to be an unusual value at the far right end of the distribution.
+
+# Graph for Rating
+
+```{r}
+ggplot(creditbalance, aes(x = Rating)) +
+  geom_histogram(bins = 20, fill = "#81ADC8") +
+  ggtitle("Distribution of Credit Rating") +
+  labs(y= "People", x = "Credit Rating")
+```
+
+```{r}
+summary(creditbalance$Rating)
+```
+
+The histogram above provides information about the distribution of credit rating of 400 people in the dataset. The credit rating ranges from 93.0 to 982.0, with a median of 344.0. Its mean is 354.9, and its IQR is 190. 
+
+This histogram is roughly bimodal and right-skewed. There appears to be some unusual values at the far right end of the distribution.
+
+# Graph for Cards
+
+```{r}
+ggplot(creditbalance, aes(x = Cards)) +
+  geom_histogram(bins = 9, fill = "#B0413E") +
+  ggtitle("Distribution of Number of Credit Cards") +
+  labs(y= "People", x = "Number of Credit Cards")
+```
+```{r}
+summary(creditbalance$Cards)
+```
+
+The histogram above provides information about the distribution of number of credit cards of 400 people in the dataset. The number of credit cards ranges from 1 to 9, with a median of 3. Its mean is 2.958, and its IQR is 2. 
+
+This histogram is roughly unimodal and right-skewed. There does not appear to be any unusual values.
+
+# Graph for Age
+
+```{r}
+ggplot(creditbalance, aes(x = Age)) +
+  geom_histogram(bins = 14, fill = "#548687") +
+  ggtitle("Distribution of Age") +
+  labs(y= "People", x = "Age (in years)")
+```
+```{r}
+summary(creditbalance$Age)
+```
+
+The histogram above provides information about the distribution of age (in years) of 400 people in the dataset. The age (in years) ranges from 23 to 98, with a median of 56. Its mean is 55.67, and its IQR is 28.25.
+
+This histogram is multimodal and roughly symmetric. There does not appear to be any unusual values.
+
+# Graph for Education
+
+```{r}
+ggplot(creditbalance, aes(x = Education)) +
+  geom_histogram(bins = 15, fill = "#473335") +
+  ggtitle("Years of Education Received") +
+  labs(y= "People", x = "Years of Education")
+```
+
+```{r}
+summary(creditbalance$Education)
+```
+
+The histogram above provides information about the distribution of level of education (in years) of 400 people in the dataset. The level of education (in years) ranges from 5 to 20, with a median of 14. Its mean is 13.45, and its IQR is 5. 
+
+This histogram is unimodal and roughly left-skewed. There does not appear to be any unusual values.
+
+# Graph for Gender
+
+```{r}
+ggplot(creditbalance, aes(x = Gender, fill = Gender)) + 
+  geom_bar() +
+  ggtitle("Gender")
+```
+
+```{r}
+library(dplyr)
+creditbalance %>%
+  group_by(Gender) %>%
+  summarize(Count = n()/400)
+```
+The bar graph above provides information about the distribution of two genders among 400 people. In the dataset, 48.2% are male and 51.7% are female. 
+
+# Graph for Student
+
+```{r}
+ggplot(creditbalance, aes(x = Student, fill = Student)) + 
+  geom_bar() +
+  ggtitle("Whether the individual was a student")
+```
+
+```{r}
+creditbalance %>%
+  group_by(Student) %>%
+  summarize(Count = n()/400)
+```
+
+The bar graph above provides information about the distribution of students among 400 people. In the dataset, only 10% were students, and 90% were not students. This is a quite large difference.
+
+# Graph for Married
+
+```{r}
+ggplot(data = creditbalance, aes(x = Married, fill = Married)) + 
+  geom_bar() +
+  ggtitle("Whether the individual was married")
+```
+
+```{r}
+creditbalance %>%
+  group_by(Married) %>%
+  summarize(Count = n()/400)
+```
+
+The bar graph above provides information about the distribution of married and not-married people among 400 people in the dataset. 38.8% had not been married, and 61.2 had been married.
+
+# Graph for Ethnicity
+
+```{r}
+ggplot(data = creditbalance, aes(x = Ethnicity, fill = Ethnicity)) + 
+  geom_bar() +
+  ggtitle("The individual's ethnicity")
+```
+
+```{r}
+creditbalance %>%
+  group_by(Ethnicity) %>%
+  summarize(Count = n()/400)
+```
+
+The bar graph above provides information about the distribution of 3 ethnic groups among 400 people. Out of 400 people in the dataset, 24.8% are African American, 25.5% are Asian, and 49.8% are Caucasian. 
+
+# Graph for Balance
+
+```{r}
+ggplot(data = creditbalance, aes(x = Balance)) + 
+  geom_histogram(bins = 20, fill = "#A67F8E") +
+  ggtitle("Average Credit Card Balance") +
+  labs(y= "People", x = "Average Credit Card Balance (in $)")
+```
+
+```{r}
+summary(creditbalance$Balance)
+```
+
+The histogram above provides information about the distribution of average credit card balance (in dollars) of 400 people in the dataset. The average credit card balance (in dollars) ranges from 0 to 1999, with a median of 459.5. Its mean is 520.01, and its IQR is 794.25. 
+
+This histogram is unimodal and roughly right-skewed. There appears to be an usual value at 2000. 
+
+# Summary Statistics for Numerical Variables
+
+```{r, include=FALSE}
+library(reshape2)
+head(creditbalance)
+```
+
+```{r, include=FALSE}
+library(dplyr)
+creditbalance_num <- creditbalance %>%
+dplyr::select(Income, Limit, Rating, Cards, Age, Education, Balance)
+creditbalance_melt <- melt(creditbalance_num, id.vars = c()) 
+head(creditbalance_melt)
+```
+
+```{r, include=FALSE}
+library(dplyr) 
+
+creditbalance_sumstats <- creditbalance_melt %>%
+  group_by(variable) %>%
+  summarize(Mean = mean(value), SD = sd(value), Min = min(value), Max = max(value))
+creditbalance_sumstats
+```
+
+```{r}
+options(knitr.table.format = "latex", knitr.kable.NA = "")
+```
+
+```{r}
+library(kableExtra)
+
+kable2 <- function(data, ...) {
+  knitr::kable(data, ..., booktabs = TRUE, escape = FALSE, digits = 3) %>%
+    kable_styling(position = "center", latex_options = "HOLD_position") }
+kable2(creditbalance_sumstats)
+```
+
+# Simple Linear Regression
+
+Let Age be the explanatory variable and Income be the response variable. These two variable's relationship will be displayed in the scatterplot below.
+
+
+```{r}
+ggplot(data = creditbalance, aes(x = Age, y = Income)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F, color = "#124E78")
+```
+The correlation between the two variables is:
+
+```{r}
+cor(creditbalance$Age, creditbalance$Income, use = "complete.obs")
+```
+
+The relationship between the age of the individual (in years) and the income the individual had (in 1000 dollars) is linear and positive. The relationship is roughly weak (R = 0.17); points scatter around. There does not appear to be any unusual values. 
+
+The multiple R-squared for these two variables is 0.03074. This means, 3.07% of variation in the estimated individual's income can be explained by their age.
+
+
+```{r}
+creditbalance_model <- lm(data = creditbalance, Income ~ Age)
+summary(creditbalance_model)
+```
+
+Interpretation of the linear model's slope and intercept:
+
+When the individual's age is 0, the expected income the person had is 25.2762. However, here, the y-intercept is just the value we get after extrapolating. It does not make any sense by itself.
+
+The model predicts that there is an expected increase of 0.3582 (in 1000 dollars) in the income for every one year increase in the age of a person. 
+
+
+Confidence intervals for the slope and intercept parameters:
+
+```{r}
+confint(creditbalance_model)
+```
+
+
+According to the calculations, we are 95% confident that the slope for predicting the individual's income from their age is between 0.16 and 0.55.
+
+Also, we are 95% confident that the intercept for predicting the individual's income from their age is between 13.72 and 36.82.
+
+A scatterplot comparing the explanatory variable, Age, to the residuals is provided below:
+
+
+```{r}
+ggplot(data = creditbalance_model, aes(x = .fitted, y = .resid)) + 
+  geom_point(color = "#EF626C") +
+  geom_smooth(method = "lm", se = F, color = "#05668D") +
+  xlab("Predicted") + 
+  ylab("Residuals")
+```
+
+```{r}
+cor(creditbalance_model$fitted, creditbalance_model$resid, use = "complete.obs")
+```
+
+The residual plot shows that there is a random scatter of residuals with no pattern. A positive line can be fitted, but the correlation is very small, which is 7.178273e-17. There does not seem to be any outlier.
+
+A histogram of the residuals is provided below:
+
+```{r}
+ggplot(data = creditbalance_model, aes(x = .resid)) + 
+  geom_histogram(bins = 20, fill = "#679436") + 
+  ggtitle("Residuals")
+```
+
+```{r}
+summary(creditbalance_model$residuals)
+```
+
+This histogram is roughly unimodal and right-skewed. There does not appear to be any unusual values. Its center is at approximately -10.69, and it ranges from -41.24 to 146.67.
+
+For this dataset, I think that the linear regression model is not appropriate. The data shows a linear trend, the residual plot shows no pattern, and the observations are independent from each other. However, the histogram of the residuals is not normal. Therefore, we need to use a more complicated method for this dataset. As I observe from the dataset, there are no influential points.
+
+To determine if the relationship at hand is significant or not, or in other words, if the individual's age is a significant predictor of their income, I conduct a hypothesis test.
+
+H0: B1 = 0
+
+null hypothesis: The age of an individual is not associated with their income.
+
+HA: B1 != 0
+
+alternative hypothesis: The age of an individual is associated with their income.
+
+
+```{r}
+summary(creditbalance_model)$coefficients
+```
+
+The p-value for the slope of the model is 4.264909e-04. Since the p-value for the slope on the income is less than a significant level of a = 0.05 (or any other reasonable significance level), we reject the null hypothesis. There is significant evidence of a positive linear relationship between the age of an individual and the income they had. The relationship is strong enough, and the explanatory variable is a significant predictor of the response variable.
+
+# Adding an Indicator Variable
+
+```{r}
+ggplot(data = creditbalance, aes(x = Age, y = Income, color = Student)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F)
+```
+Knowing the value of the categorical variable through the graph shows us that there is a greater slope for individuals who were students, meaning that they follow the relationship of age versus income more strongly than people who were not students. The categorical variable might add some more useful information to our prediction.
+
+```{r}
+indicator_model <- lm(data = creditbalance, Income ~ Age + Student)
+summary(indicator_model)
+```
+The adjusted R-squared is adjusting for the number of predictors in the model. It shows that 2.6% of variation the estimated income (in 1000 dollars) can be explained by the individual's age and whether they were a student. The adjusted R-squared for creditbalance_model is 0.028 and for indicator_model is 0.026. The first model, predicting income from age, describes the data best since it has the higher adjusted R-squared value. The value, actually, does not confirm our theory that the indicator variable adds more useful information to our prediction.
+
+The coefficient for the categorical variable, StudentYes, is 2.92. The reference level is StudentNo. This means that the income (in 1000 dollars), for an individual who was a student, is expected to be 2.92 more than the expected income for an individual who was not a student.
+
+```{r}
+confint(indicator_model)
+```
+
+According to the calculations, we are 95% confident that the slope for predicting the individual's income from whether they were a student or not is between -8.47 and 14.3.
+
+Also, we are 95% confident that the intercept for predicting the individual's income from whether they were a student or not is between 13.24 and 36.55.
+
+# Conclusion
+
+This general analysis of the "Credit Card Balance Data" dataset provides some information about the variables in the dataset and the relationship between an individual's income, age, and whether they were a student. Age and Student are significant predictors of Income. Moreover, it is a case where including variables that are not evidently important can reduce the accuracy of predictions.
