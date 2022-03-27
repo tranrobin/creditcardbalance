@@ -1,5 +1,5 @@
 ---
-title: "Final Project"
+title: "Credit Card Balance"
 author: "Robin Tran"
 date: "12/2/2021"
 output:
